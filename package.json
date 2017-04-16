@@ -18,6 +18,7 @@
     "express": "^4.14.1",
     "fs": "~0.0.1",
     "json-parser": "1.1.5",
+    "js2xmlparser": "3.0.0",
     "morgan": "~1.7.0",
     "node-fetch": "^1.6.3",
     "path": "^0.12.7",
