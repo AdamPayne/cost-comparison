@@ -18,10 +18,10 @@ const httpJSONRequest = function (url) {
     });
 };
 
-httpJSONRequest("http://price-comparison.azurewebsites.net/testIP")
+httpJSONRequest("/testIP")
     .then((json) => console.log(json));
 
-httpJSONRequest("http://price-comparison.azurewebsites.net/numbeo")
+httpJSONRequest("/numbeo")
     .then(function (json) {
         drawLeftChart(json[0], "#col1", ".chart1");
         drawRightChart(json[1], "#col2", ".chart2");
