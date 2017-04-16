@@ -7,7 +7,6 @@ const fs = require('fs');
 const path = require('path');
 const jsonParser = require('json-parser');
 const fetch = require('node-fetch');
-const xml = require('xml');
 const js2xmlparser = require("js2xmlparser");
 
 const getGeoJSON = require('../utilities/helperFunctions.js').getGeoJSON;
