@@ -25,19 +25,19 @@ function processFile() {
 }
 
 const getGeoJSON = function (userIP) {
-    userIP = (userIP == "::1" || userIP == "" ? '83.143.251.132' : userIP);
-    userIP = (userIP.indexOf(":") == -1 ? userIP : userIP.substring(0,userIP.indexOf(":")));
+    userIP = (userIP === "::1" || userIP === "" ? '83.143.251.132' : userIP);
+    userIP = (userIP.indexOf(":") === -1 ? userIP : userIP.substring(0,userIP.indexOf(":")));
     return fetch('http://ip-api.com/json/' + userIP)
         .then((res) => res.json())
 };
 
 const getCityFromIP = function (userIP) {
     return getGeoJSON(userIP)
-        .then((json) => getCityFromJSON(json))
+        .then((json) => json.city)
 };
 
 const getCityStats = function (city) {
-    city = (city == "" ? "Belgrade" : city);
+    city = (city === "" ? "Belgrade" : city);
     return fetch("https://www.numbeo.com/api/city_prices?api_key=" + apikey + "&currency=USD&query=" + city)
         .then((res) => res.json())
         //.then((city) => city.prices=city.prices.filter(item => filterItems(item, json[1].prices)));
@@ -45,16 +45,22 @@ const getCityStats = function (city) {
         //.then((res) => res.json())
 };
 
-const filterPrices = function(bothCityStats){
-    bothCityStats[0].prices = bothCityStats[0].prices.filter(item => filterItems(item, bothCityStats[1].prices));
-    bothCityStats[1].prices = bothCityStats[1].prices.filter(item => filterItems(item, bothCityStats[0].prices));
+const filterPrices = function(bothCityStats, isForXML){
+    if(isForXML){
+        bothCityStats[0].prices = bothCityStats[0].prices.filter(item => filterItemsForXMl(item, bothCityStats[1].prices));
+        bothCityStats[1].prices = bothCityStats[1].prices.filter(item => filterItemsForXMl(item, bothCityStats[0].prices));
+    } else {
+        bothCityStats[0].prices = bothCityStats[0].prices.filter(item => filterItems(item, bothCityStats[1].prices));
+        bothCityStats[1].prices = bothCityStats[1].prices.filter(item => filterItems(item, bothCityStats[0].prices));
+    }
     bothCityStats[0].prices.sort((a, b) => sortItemsById);
     bothCityStats[1].prices.sort((a, b) => sortItemsById);
     return bothCityStats;
 };
+
 // used by the chatbot
 const getItemStats = function (city, item) {
-    city = (city == "" ? "Belgrade" : city);
+    city = (city === "" ? "Belgrade" : city);
     return fetch("https://www.numbeo.com/api/city_prices?api_key=" + apikey + "&currency=USD&query=" + city)
         .then((res) => res.json())
         .then((json) => filterItem(json, item));
@@ -79,6 +85,16 @@ const filterItems = function (item, otherJSON){
         return true
     }
 };
+
+const filterItemsForXMl = function (item, otherJSON){
+    let other = otherJSON.filter(obj => obj.item_id==item.item_id);
+    if(other.length==0){
+        return false;
+    } else {
+        return true
+    }
+};
+
 const sortItemsById=function(a, b){
     let keyA = new Date(a.item_id),
         keyB = new Date(b.item_id);
@@ -87,6 +103,7 @@ const sortItemsById=function(a, b){
     if(keyA > keyB) return 1;
     return 0;
 };
+
 module.exports = {
     getGeoJSON: getGeoJSON,
     getCityFromIP: getCityFromIP,
